@@ -21,3 +21,15 @@ Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want 
 1. Add flags to customize the generated file a little better
   - [ ] Author
   - [ ] Subtitle
+  - [ ] "Raw" (Not presenterm-compatible)
+
+# Installation
+Right now the only way to install it is building it. You'll need `cargo` for that.
+
+For now, I recommend installing `presenterm` if you don't have it, otherwise the formatting would be a hindrance more than anything. Eventually I'll add a --raw flag to the CLI to generate a simpler (not "presenterm-ready") .md file.
+
+Just clone the repo, `cd` into it and run `cargo install --path "."`.
+
+This should install the CLI as `minigdd`.
+
+Run `minigdd`, if the help text shows up, everything is working as it should.
