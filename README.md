@@ -1,13 +1,19 @@
 # MiniGDD CLI
 Generate a minimal, presenterm-compatible, Game Design Document template on the current directory.
-I plan on expanding this tool to a somewhat interesting state eventually.
+It is recommended to have `presenterm`.
 
 ## How to
+Create the template file with the supplied name.
+
 `minigdd spawn <game_name>`
-Generates the template with the supplied name.
-If there's no name the file is generated with a default name.
+
+If there's no name, the file will be generated with a default one.
 
 Open file with your text editor of choice and edit it's contents.
+
+Run presenterm with your new mini-gdd:
+
+`presenterm <mini-gdd file>`
 
 Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want to customize the document further.
 
