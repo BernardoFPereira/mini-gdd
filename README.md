@@ -1,4 +1,6 @@
 # MiniGDD CLI
+![demo](https://github.com/user-attachments/assets/6d4f4de6-ff39-478a-a0bf-4b1cc7bf81db)
+
 Generate a minimal, presenterm-compatible, Game Design Document template on the current directory.
 It is recommended to have `presenterm`.
 
