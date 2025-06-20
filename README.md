@@ -15,7 +15,7 @@ Open file with your text editor of choice and edit it's contents.
 
 Run presenterm with your new mini-gdd:
 
-`presenterm <mini-gdd file>`
+`presenterm <mini-gdd_file>`
 
 Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want to customize the document further.
 
@@ -28,7 +28,8 @@ Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want 
 # Installation
 Right now the only way to install it is building it. You'll need `cargo` for that.
 
-For now, I recommend installing `presenterm` if you don't have it, otherwise the formatting would be a hindrance more than anything. Eventually I'll add a --raw flag to the CLI to generate a simpler (not "presenterm-ready") .md file.
+If you don't have `presenterm`,  use the `--raw` flag to generate a plain .md file. 
+I want to eventually add config to set user-defined defaults.
 
 Just clone the repo, `cd` into it and run `cargo install --path "."`.
 
