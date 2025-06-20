@@ -25,6 +25,11 @@ Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want 
   - [ ] Subtitle
   - [x] Raw (plain markdown)
 
+2. Add a `config` command to allow user-defined defaults.
+  - [ ] Add config file
+  - [ ] Use config file data
+  - [ ] Add command to alter config file data
+
 # Installation
 Right now the only way to install it is building it. You'll need `cargo` for that.
 
