@@ -2,52 +2,110 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
+#[derive(Debug)]
+enum Flags {
+    AUTHOR(String),
+    RAW,
+}
+
 pub struct Config {
     cmd: String,
     file_name: String,
+    flags: Vec<Flags>,
 }
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
+    pub fn build(args: &mut [String]) -> Result<Config, &'static str> {
         if args.len() <= 1 {
             print_help();
         }
 
         let cmd = args[1].clone();
-        let file_name: String;
+        let mut file_name = String::from("mini");
+        let mut flags = Vec::<Flags>::new();
+        let filtered_args: Vec<&String>;
 
-        if args.len() <= 2 {
-            match args[1].as_str() {
+        filtered_args = args.iter().filter(|a| !a.starts_with('-')).collect();
+
+        println!("{:?}", filtered_args);
+        println!("{:?}", filtered_args.len());
+        println!("{:?}", flags);
+
+        let mut cloned_args: Vec<String> = Vec::new();
+        args.clone_into(&mut cloned_args);
+
+        if filtered_args.len() <= 2 {
+            match filtered_args[1].as_str() {
                 "spawn" => {
-                    file_name = "mini_gdd".to_string();
-                    return Ok(Config { cmd, file_name });
+                    println!("Spawning GDD with default names.");
+                    return Ok(Config {
+                        cmd,
+                        file_name,
+                        flags,
+                    });
                 }
                 _ => {}
             }
-            return Err("Not enough arguments");
+            return Err("Not enough arguments.");
         }
 
-        file_name = args[2].clone();
+        file_name = filtered_args[2].clone();
 
-        Ok(Config { cmd, file_name })
+        for arg in cloned_args {
+            if arg.starts_with('-') {
+                match arg.to_lowercase().as_str() {
+                    "--author" => {
+                        let author_name = filtered_args
+                            .iter()
+                            .last()
+                            .unwrap_or(&&"Mini Me".to_string())
+                            .to_string();
+                        if author_name == file_name {
+                            file_name = "mini".to_string();
+                            println!("Using default file name.")
+                        }
+                        flags.push(Flags::AUTHOR(author_name));
+                    }
+                    "--raw" => {
+                        flags.push(Flags::RAW);
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        Ok(Config {
+            cmd,
+            file_name,
+            flags,
+        })
     }
 }
 
 pub fn run(config: Config) -> Result<(), String> {
-    println!("Comand to execute: {:?}", config.cmd);
-    println!("file_path provided: {:?}", config.file_name);
-
-    println!("{:?}", config.cmd);
     match config.cmd.as_str() {
         "spawn" => {
-            println!("Spawning gdd at {:?}", config.file_name);
-            spawn_file(&config.file_name)?;
+            let mut author: String = "Mini Me".to_string();
+            let mut is_raw: bool = false;
+            println!("File name: {}", config.file_name);
+
+            // Check flags
+            for flag in config.flags {
+                match flag {
+                    Flags::AUTHOR(name) => {
+                        if name != config.file_name {
+                            author = name;
+                        } else {
+                            println!("Author flag used but no author specified! Using default.");
+                        }
+                    }
+                    Flags::RAW => {
+                        println!("Raw flag used -- Generating plain markdown");
+                        is_raw = true;
+                    }
+                }
+            }
+            spawn_file(&config.file_name, author, is_raw)?;
         }
-        // "clean" => {
-        //     println!("GDD Restored");
-        // }
-        // "delete" => {
-        //     println!("Deleting gdd at {:?}", config.path);
-        // }
         _ => {
             return Err("No such command.".to_string());
         }
@@ -56,13 +114,13 @@ pub fn run(config: Config) -> Result<(), String> {
     Ok(())
 }
 
-fn spawn_file(file_name: &str) -> Result<(), String> {
-    let path = format!("{file_name}.md");
+fn spawn_file(file_name: &str, author: String, is_raw: bool) -> Result<(), String> {
+    let path = format!("{file_name}_gdd.md");
 
     match File::create(path) {
         Ok(mut file) => {
-            let mut template = generate_header(file_name, "Really cool game", "Author");
-            let mut body = generate_template();
+            let mut template = generate_header(file_name, "Really cool game", author);
+            let mut body = generate_template(is_raw);
             template.append(&mut body);
 
             if let Ok(_) = file.write_all(&template) {
@@ -82,12 +140,17 @@ fn print_help() {
     "MiniGDD
       commands:
       - spawn <game_name>
-      Create a markdown file with a template mini gdd with the <game_name> as a file name, if supplied. Otherwise, the file will be automatically named mini_gdd.md\n"
+      Create a markdown file with a template mini gdd with the <game_name> as a file name, if supplied. Otherwise, the file will be automatically named mini_gdd.md.\n
+      flags:
+      - --raw
+      Spawns a MiniGDD as a plain markdown file.\n
+      - --author
+      Specify author(s) to be included in the document. If absent MiniGDD will use the default author name."
     );
     process::exit(0);
 }
 
-fn generate_header(title: &str, subtitle: &str, author: &str) -> Vec<u8> {
+fn generate_header(title: &str, subtitle: &str, author: String) -> Vec<u8> {
     format!(
         r#"---
 title: {title}
@@ -99,8 +162,37 @@ author: {author}
     .to_vec()
 }
 
-fn generate_template() -> Vec<u8> {
-    r#"
+fn generate_template(is_raw: bool) -> Vec<u8> {
+    match is_raw {
+        true => r#"
+Short Description
+===
+Here you describe the general take of the game.
+A succint explanation of the whole thing.
+Target audience, genre, style, etc.
+
+Story
+===
+Basic story line of the game. Note important places or landmarks.
+
+Basic Game Loops
+===
+How the game is played.
+
+1. Describe Game Loop
+2. ...
+
+Minimum Viable Product
+===
+List of all features needed for a Minimum Viable Product.
+
+Stretch Goals
+===
+If we get here with time and energy, do these.
+"#
+        .as_bytes()
+        .to_vec(),
+        false => r#"
 Short Description
 ===
 Here you describe the general take of the game.
@@ -134,6 +226,7 @@ Stretch Goals
 ===
 If we get here with time and energy, do these.
 "#
-    .as_bytes()
-    .to_vec()
+        .as_bytes()
+        .to_vec(),
+    }
 }

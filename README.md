@@ -21,9 +21,9 @@ Check `presenterm` [docs](https://mfontanini.github.io/presenterm/) if you want 
 
 ## Mini next steps
 1. Add flags to customize the generated file a little better
-  - [ ] Author
+  - [x] Author
   - [ ] Subtitle
-  - [ ] "Raw" (Not presenterm-compatible)
+  - [x] Raw (plain markdown)
 
 # Installation
 Right now the only way to install it is building it. You'll need `cargo` for that.
