@@ -120,7 +120,7 @@ fn print_help() {
     println!(
     "MiniGDD
       commands:
-      - spawn <game_name>
+      - spawn <game_name> [flags]
       Create a markdown file with a template mini gdd with the <game_name> as a file name, if supplied. Otherwise, the file will be automatically named mini_gdd.md.\n
       flags:
       - --raw
