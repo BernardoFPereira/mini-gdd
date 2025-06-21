@@ -31,22 +31,20 @@ impl Config {
         }
 
         for arg in flag_args {
-            if arg.starts_with('-') {
-                match arg.to_lowercase().as_str() {
-                    "--author" => {
-                        let author_name = filtered_args
-                            .iter()
-                            .last()
-                            .unwrap_or(&&"Mini Me".to_string())
-                            .to_string();
+            match arg.to_lowercase().as_str() {
+                "--author" => {
+                    let author_name = filtered_args
+                        .iter()
+                        .last()
+                        .unwrap_or(&&"Mini Me".to_string())
+                        .to_string();
 
-                        flags.push(Flags::AUTHOR(author_name));
-                    }
-                    "--raw" => {
-                        flags.push(Flags::RAW);
-                    }
-                    _ => {}
+                    flags.push(Flags::AUTHOR(author_name));
                 }
+                "--raw" => {
+                    flags.push(Flags::RAW);
+                }
+                _ => {}
             }
         }
 
@@ -85,6 +83,7 @@ pub fn run(mut config: Config) -> Result<(), String> {
             }
 
             println!("File name: {}_gdd.md", config.file_name);
+
             spawn_file(&config.file_name, author, is_raw)?;
         }
         _ => {
