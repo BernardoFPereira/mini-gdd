@@ -26,7 +26,6 @@ impl Config {
         let filtered_args: Vec<&String> = args.iter().filter(|a| !a.starts_with('-')).collect();
         let flag_args: Vec<&String> = args.iter().filter(|f| f.starts_with('-')).collect();
 
-        println!("{:?}", filtered_args);
         if filtered_args.len() >= 3 {
             file_name = filtered_args[2].clone();
         }
