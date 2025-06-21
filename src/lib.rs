@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::Write;
 use std::process;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Flags {
     AUTHOR(String),
     RAW,
@@ -33,11 +33,13 @@ impl Config {
         for arg in flag_args {
             match arg.to_lowercase().as_str() {
                 "--author" => {
-                    let author_name = filtered_args
-                        .iter()
-                        .last()
-                        .unwrap_or(&&"Mini Me".to_string())
-                        .to_string();
+                    let flag_idx = args.iter().position(|a| a == arg).unwrap();
+                    let author_name;
+
+                    match args.get(flag_idx + 1) {
+                        Some(name) => author_name = name.clone(),
+                        None => return Err("Author flag used but no author found"),
+                    }
 
                     flags.push(Flags::AUTHOR(author_name));
                 }
@@ -59,23 +61,27 @@ impl Config {
 pub fn run(mut config: Config) -> Result<(), String> {
     match config.cmd.as_str() {
         "spawn" => {
-            let mut author: String = "Mini Me".to_string();
+            let mut author: String = "Author".to_string();
             let mut is_raw: bool = false;
 
-            for flag in config.flags {
+            for flag in &config.flags {
                 match flag {
                     Flags::AUTHOR(name) => {
-                        if name != config.cmd {
-                            author = name;
+                        if name != &config.cmd {
+                            author = name.clone();
+
                             if author == config.file_name {
                                 config.file_name = "mini".to_string()
                             }
                             println!("Author name: {author}");
-                        } else {
-                            println!("Author flag used but no author specified! Using default.");
-                        }
+                        } // else {
+                          //     println!("Author flag used but no author specified! Using default.");
+                          // }
                     }
                     Flags::RAW => {
+                        if config.flags.len() < 2 {
+                            println!("Using default author name.")
+                        }
                         println!("Generating plain markdown");
                         is_raw = true;
                     }
