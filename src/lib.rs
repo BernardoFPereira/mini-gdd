@@ -22,35 +22,16 @@ impl Config {
         let cmd = args[1].clone();
         let mut file_name = String::from("mini");
         let mut flags = Vec::<Flags>::new();
-        let filtered_args: Vec<&String>;
 
-        filtered_args = args.iter().filter(|a| !a.starts_with('-')).collect();
+        let filtered_args: Vec<&String> = args.iter().filter(|a| !a.starts_with('-')).collect();
+        let flag_args: Vec<&String> = args.iter().filter(|f| f.starts_with('-')).collect();
 
         println!("{:?}", filtered_args);
-        println!("{:?}", filtered_args.len());
-        println!("{:?}", flags);
-
-        let mut cloned_args: Vec<String> = Vec::new();
-        args.clone_into(&mut cloned_args);
-
-        if filtered_args.len() <= 2 {
-            match filtered_args[1].as_str() {
-                "spawn" => {
-                    println!("Spawning GDD with default names.");
-                    return Ok(Config {
-                        cmd,
-                        file_name,
-                        flags,
-                    });
-                }
-                _ => {}
-            }
-            return Err("Not enough arguments.");
+        if filtered_args.len() >= 3 {
+            file_name = filtered_args[2].clone();
         }
 
-        file_name = filtered_args[2].clone();
-
-        for arg in cloned_args {
+        for arg in flag_args {
             if arg.starts_with('-') {
                 match arg.to_lowercase().as_str() {
                     "--author" => {
@@ -59,10 +40,7 @@ impl Config {
                             .last()
                             .unwrap_or(&&"Mini Me".to_string())
                             .to_string();
-                        if author_name == file_name {
-                            file_name = "mini".to_string();
-                            println!("Using default file name.")
-                        }
+
                         flags.push(Flags::AUTHOR(author_name));
                     }
                     "--raw" => {
@@ -81,29 +59,33 @@ impl Config {
     }
 }
 
-pub fn run(config: Config) -> Result<(), String> {
+pub fn run(mut config: Config) -> Result<(), String> {
     match config.cmd.as_str() {
         "spawn" => {
             let mut author: String = "Mini Me".to_string();
             let mut is_raw: bool = false;
-            println!("File name: {}", config.file_name);
 
-            // Check flags
             for flag in config.flags {
                 match flag {
                     Flags::AUTHOR(name) => {
-                        if name != config.file_name {
+                        if name != config.cmd {
                             author = name;
+                            if author == config.file_name {
+                                config.file_name = "mini".to_string()
+                            }
+                            println!("Author name: {author}");
                         } else {
                             println!("Author flag used but no author specified! Using default.");
                         }
                     }
                     Flags::RAW => {
-                        println!("Raw flag used -- Generating plain markdown");
+                        println!("Generating plain markdown");
                         is_raw = true;
                     }
                 }
             }
+
+            println!("File name: {}_gdd.md", config.file_name);
             spawn_file(&config.file_name, author, is_raw)?;
         }
         _ => {
